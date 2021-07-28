@@ -2,42 +2,42 @@ import pygame
 import random
 
 pygame.init()
-displayWidth = 500
-displayHeight = 500
-win = pygame.display.set_mode((displayWidth, displayHeight))
+display_width = 500
+display_height = 500
+win = pygame.display.set_mode((display_width, display_height))
 
 pygame.display.set_caption('POOPRUN')
 
 clock = pygame.time.Clock()
 
-playerX = 50
-playerY = displayHeight - 60
-playerWidth = 50
-playerHeight = 50
-playerSpeed = 5
+player_x = 50
+player_y = display_height - 60
+player_width = 50
+player_height = 50
+player_speed = 5
 
 bullets = []
 
-isJump = False
-jumpCount = 10
+is_jump = False
+jump_count = 10
 
 left = False
 right = False
-animCount = 0
-lastMove = 'right'
+anim_count = 0
+last_move = 'right'
 
-walkRight = [pygame.image.load('sprites/right (4).png'),
-             pygame.image.load('sprites/right (5).png'), pygame.image.load('sprites/right (6).png'), pygame.image.load('sprites/right (7).png'), pygame.image.load('sprites/right (8).png'),
-             pygame.image.load('sprites/right (9).png'), pygame.image.load('sprites/right (10).png'), pygame.image.load('sprites/right (11).png'), pygame.image.load('sprites/right (12).png'),
-             pygame.image.load('sprites/right (13).png'), pygame.image.load('sprites/right (14).png'), pygame.image.load('sprites/right (15).png')]
+walk_right = [pygame.image.load('sprites/right (4).png'),
+              pygame.image.load('sprites/right (5).png'), pygame.image.load('sprites/right (6).png'), pygame.image.load('sprites/right (7).png'), pygame.image.load('sprites/right (8).png'),
+              pygame.image.load('sprites/right (9).png'), pygame.image.load('sprites/right (10).png'), pygame.image.load('sprites/right (11).png'), pygame.image.load('sprites/right (12).png'),
+              pygame.image.load('sprites/right (13).png'), pygame.image.load('sprites/right (14).png'), pygame.image.load('sprites/right (15).png')]
 
-walkLeft = [pygame.image.load('sprites/left (4).png'),
-            pygame.image.load('sprites/left (5).png'), pygame.image.load('sprites/left (6).png'), pygame.image.load('sprites/left (7).png'), pygame.image.load('sprites/left (8).png'),
-            pygame.image.load('sprites/left (9).png'), pygame.image.load('sprites/left (10).png'), pygame.image.load('sprites/left (11).png'), pygame.image.load('sprites/left (12).png'),
-            pygame.image.load('sprites/left (13).png'), pygame.image.load('sprites/left (14).png'), pygame.image.load('sprites/left (15).png')]
+walk_left = [pygame.image.load('sprites/left (4).png'),
+             pygame.image.load('sprites/left (5).png'), pygame.image.load('sprites/left (6).png'), pygame.image.load('sprites/left (7).png'), pygame.image.load('sprites/left (8).png'),
+             pygame.image.load('sprites/left (9).png'), pygame.image.load('sprites/left (10).png'), pygame.image.load('sprites/left (11).png'), pygame.image.load('sprites/left (12).png'),
+             pygame.image.load('sprites/left (13).png'), pygame.image.load('sprites/left (14).png'), pygame.image.load('sprites/left (15).png')]
 
-playerStand = [pygame.image.load('sprites/front (1).png'), pygame.image.load('sprites/front (2).png'), pygame.image.load('sprites/front (3).png'),
-               pygame.image.load('sprites/front (4).png'), pygame.image.load('sprites/front (5).png')]
+player_stand = [pygame.image.load('sprites/front (1).png'), pygame.image.load('sprites/front (2).png'), pygame.image.load('sprites/front (3).png'),
+                pygame.image.load('sprites/front (4).png'), pygame.image.load('sprites/front (5).png')]
 
 fire1 = [pygame.image.load('sprites/fire1.png'), pygame.image.load('sprites/fire2.png'), pygame.image.load('sprites/fire3.png'), pygame.image.load('sprites/fire4.png'),
          pygame.image.load('sprites/fire5.png'), pygame.image.load('sprites/fire5.png'), pygame.image.load('sprites/fire4.png'), pygame.image.load('sprites/fire3.png'),
@@ -52,28 +52,22 @@ fire3 = [pygame.image.load('sprites/fire111.png'), pygame.image.load('sprites/fi
          pygame.image.load('sprites/fire222.png'), pygame.image.load('sprites/fire111.png')]
 
 
-class Spike:
+class Object:
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
 
-
     def move(self, speed):
         if self.x >= -self.width:
             self.x -= speed
         else:
             if choice():
-                self.x = displayWidth + 50 + random.randrange(0, 50)
+                self.x = display_width + 50 + random.randrange(0, 50)
             else:
-                self.x = displayWidth + random.randrange(100, 300)
+                self.x = display_width + random.randrange(100, 300)
 
-    def checkPos(self):
-        if self.x < -self.width:
-            return True
-        else:
-            return False
 
 class Shoot:
     def __init__(self, x, y, facing):
@@ -85,6 +79,7 @@ class Shoot:
     def draw(self, win):
         win.blit(pygame.image.load('sprites/poop.png'), (self.x, self.y))
 
+
 def choice():
     check = random.randint(0, 5)
     if check == 0:
@@ -92,69 +87,81 @@ def choice():
     else:
         return False
 
-def drawWindow():
-    global animCount
+
+def draw_window():
+    global anim_count
     win.fill((0, 0, 0))
 
     # win.blit(background, (0, 0)) - for background
 
-    if animCount + 1 >= 60:
-        animCount = 0
+    if anim_count + 1 >= 60:
+        anim_count = 0
 
     if left:
-        win.blit(walkLeft[animCount // 5], (playerX, playerY))
-        animCount += 1
+        win.blit(walk_left[anim_count // 5], (player_x, player_y))
+        anim_count += 1
     elif right:
-        win.blit(walkRight[animCount // 5], (playerX, playerY))
-        animCount += 1
+        win.blit(walk_right[anim_count // 5], (player_x, player_y))
+        anim_count += 1
     else:
-        win.blit(playerStand[animCount // 12], (playerX, playerY))
-        animCount += 1
+        win.blit(player_stand[anim_count // 12], (player_x, player_y))
+        anim_count += 1
 
     for bullet in bullets:
         bullet.draw(win)
 
+
 def jump():
-    global playerY, jumpCount, isJump
+    global player_y, jump_count, is_jump
 
-    if jumpCount >= -10:
-        if jumpCount < 0:
-            playerY += (jumpCount ** 2) // 1.5
+    if jump_count >= -10:
+        if jump_count < 0:
+            player_y += (jump_count ** 2) // 1.5
         else:
-            playerY -= (jumpCount ** 2) // 1.5
-        jumpCount -= 1
+            player_y -= (jump_count ** 2) // 1.5
+        jump_count -= 1
     else:
-        isJump = False
-        jumpCount = 10
+        is_jump = False
+        jump_count = 10
 
-#def shooting(bullets)
+# def shooting(bullets)
 
-def createSpikes(spikes, x=500):
-    spikes.append(Spike(x + 100, displayHeight - 90, 30, 80))
-    spikes.append(Spike(x + 300, displayHeight - 60, 40, 50))
-    spikes.append(Spike(x + 550, displayHeight - 75, 50, 65))
 
-def drawSpikes(spikes, speed=6):
+def create_spikes(spikes, x=500):
+    spikes.append(Object(x + 100, display_height - 90, 30, 80))
+    spikes.append(Object(x + 300, display_height - 60, 40, 50))
+    spikes.append(Object(x + 550, display_height - 75, 50, 65))
+
+
+def draw_spikes(spikes, speed=6):
+    global anim_count
     for spike in spikes:
         if spike.width == 30:
-            win.blit(fire1[animCount//6], (spike.x, spike.y))
+            win.blit(fire1[anim_count // 6], (spike.x, spike.y))
         elif spike.width == 40:
-            win.blit(fire2[animCount//6], (spike.x, spike.y))
+            win.blit(fire2[anim_count // 6], (spike.x, spike.y))
         elif spike.width == 50:
-            win.blit(fire3[animCount//6], (spike.x, spike.y))
+            win.blit(fire3[anim_count // 6], (spike.x, spike.y))
         spike.move(speed)
 
-def printText(message, x, y, fontColor = (255, 255, 255), font = '21002.ttf', fontSize = 30):
-    font = pygame.font.Font(font, fontSize)
-    text = font.render(message, True, fontColor)
+
+def draw_hearts(heart, speed=5):
+    win.blit(pygame.image.load('sprites/heart.png'), (heart.x, heart.y))
+    heart.move(speed)
+
+
+def print_text(message, x, y, font_color=(255, 255, 255), font='21002.ttf', font_size=30):
+    font = pygame.font.Font(font, font_size)
+    text = font.render(message, True, font_color)
     win.blit(text, (x, y))
+
 
 def pause():
     paused = True
     while paused:
         clock.tick(60)
 
-        printText('PAUSED. Press ENTER to continue', 20, 200)
+        print_text('PAUSED. Press ENTER to continue', 20, 200)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -167,29 +174,29 @@ def pause():
         pygame.display.update()
 
 
-
-def checkCollision(spikes):
-    for spike in spikes:
-        if playerY + playerHeight >= spike.y:
-            if spike.x <= playerX < spike.x + spike.width:
+def check_collision(array):
+    for i in array:
+        if player_y + player_height >= i.y:
+            if i.x <= player_x < i.x + i.width:
                 return True
-            elif spike.x <= playerX + playerWidth < spike.x + spike.width:
+            elif i.x <= player_x + player_width < i.x + i.width:
                 return True
     return False
 
-def gameOver(points):
+
+def game_over(points):
     win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
     while True:
         clock.tick(60)
 
-        if highScore(points):
-            printText('NEW BEST SCORE!!!', 80, 200, fontSize=40, fontColor=(255, 255, 0))
+        if high_score(points):
+            print_text('NEW BEST SCORE!!!', 80, 200, font_size=40, font_color=(255, 255, 0))
 
-        printText('GAME OVER', 110, 90, fontSize=50)
-        printText(('your score: ' + str(points)), 175, 150, fontSize=20)
-        printText(('Best score: ' + open('highscore.txt', 'r').read()), 174, 175, fontColor=(255, 255, 0), fontSize=20)
-        printText('R - restart', 185, 250, fontSize=25)
-        printText('ESC - exit', 185, 275, fontSize=25)
+        print_text('GAME OVER', 110, 90, font_size=50)
+        print_text(('your score: ' + str(points)), 175, 150, font_size=20)
+        print_text(('Best score: ' + open('highscore.txt', 'r').read()), 174, 175, font_color=(255, 255, 0), font_size=20)
+        print_text('R - restart', 185, 250, font_size=25)
+        print_text('ESC - exit', 185, 275, font_size=25)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -203,44 +210,45 @@ def gameOver(points):
 
         pygame.display.update()
 
-def moveLeft():
-    global left, right, lastMove, playerX, playerSpeed
-    if playerX > 5:
+
+def move_left():
+    global left, right, last_move, player_x, player_speed
+    if player_x > 5:
         left = True
         right = False
-        lastMove = 'left'
-        playerX -= playerSpeed
+        last_move = 'left'
+        player_x -= player_speed
 
-def moveRight():
-    global left, right, lastMove, playerX, playerWidth, playerSpeed
-    if playerX < (500 - playerWidth - 5):
+
+def move_right():
+    global left, right, last_move, player_x, player_width, player_speed
+    if player_x < (500 - player_width - 5):
         left = False
         right = True
-        lastMove = 'right'
-        playerX += playerSpeed
+        last_move = 'right'
+        player_x += player_speed
+
 
 def stand():
     global left, right
     left = False
     right = False
 
-def restart():
-    global playerY, playerX, spikes, bullets
-    playerX = 50
-    playerY = displayHeight - 60
-    runGame(points=0, spikes=[])
 
-def highScore(points):
+def restart():
+    global player_y, player_x, spikes, bullets
+    player_x = 50
+    player_y = display_height - 60
+    run_game(points=0, spikes=[])
+
+
+def high_score(points):
     if int(open('highscore.txt', 'r').read()) < points:
         file = open('highscore.txt', 'w')
         file.write(str(points))
         return True
 
-# TODO fix collisions
-# TODO add hearts as a healing
-# TODO add shooting
-
-
+# shooting
 """""
     for bullet in bullets:
         if 0 < bullet.x < 500:
@@ -258,11 +266,12 @@ def highScore(points):
         if len(bullets) < 10:
             bullets.append(Shoot(round(playerX + playerWidth // 2), round(playerY + playerHeight - 15), facing))
 
-""" # shooting
+"""
 
-def runGame(points=0, lives=20, spikes=[]):
-    global isJump
-    obstacleSpeed = 6
+
+def run_game(points=0, lives=20, spikes=[], heart=Object(1500, 200, 30, 30)):
+    global is_jump
+    obstacle_speed = 6
     run = True
     best = open('highscore.txt', 'r').read()
     while run:
@@ -271,19 +280,12 @@ def runGame(points=0, lives=20, spikes=[]):
         points += 1
 
         if points == 1:
-            createSpikes(spikes)
-        elif points == 1000:
-            obstacleSpeed = 7
-        elif points == 2000:
-            obstacleSpeed = 8
-        elif points == 3000:
-            obstacleSpeed = 9
-        elif points == 5000:
-            obstacleSpeed = 10
-
+            create_spikes(spikes)
+        elif points % 1000 == 0:
+            obstacle_speed += 1
 
         # bugfix
-        if playerY > displayHeight - 60:
+        if player_y > display_height - 60:
             restart()
 
         for event in pygame.event.get():
@@ -296,36 +298,45 @@ def runGame(points=0, lives=20, spikes=[]):
             pause()
 
         if keys[pygame.K_a]:
-            moveLeft()
+            move_left()
         elif keys[pygame.K_d]:
-            moveRight()
+            move_right()
         else:
             stand()
 
-        if not isJump:
+        if not is_jump:
             if keys[pygame.K_SPACE]:
-                isJump = True
+                is_jump = True
         else:
             jump()
 
-        drawWindow()
+        draw_window()
 
-        drawSpikes(spikes, obstacleSpeed)
+        draw_spikes(spikes, obstacle_speed)
+        draw_hearts(heart, obstacle_speed)
 
-        if checkCollision(spikes):
-            if lives == 0:
-                gameOver(points)
+        if check_collision([heart]) and is_jump:
+            lives += 3
+            heart = Object(random.randrange(2000, 5000), 200, 30, 30)
+
+        if check_collision(spikes):
+            if lives <= 0:
+                game_over(points)
             else:
                 win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
                 lives -= 1
 
-        printText(('HP: ' + str(lives)), 0, 30, fontSize=20)
-        printText(('your score: ' + str(points)), 0, 0, fontSize=20)
-        printText(('best score: ' + best), 330, 0, fontSize=20)
+        print_text(('HP: ' + str(lives)), 0, 30, font_size=20)
+        print_text(('your score: ' + str(points)), 0, 0, font_size=20)
+        print_text(('best score: ' + best), display_width - 170, 0, font_size=20)
 
         pygame.display.update()
 
+
 if __name__ == '__main__':
-    runGame()
+    run_game()
 
 pygame.quit()
+
+# TODO add hearts as a healing
+# TODO add shooting
