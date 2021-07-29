@@ -2,7 +2,7 @@ import pygame
 import random
 
 pygame.init()
-display_width = 500
+display_width = 1000
 display_height = 500
 win = pygame.display.set_mode((display_width, display_height))
 
@@ -51,6 +51,11 @@ fire3 = [pygame.image.load('sprites/fire111.png'), pygame.image.load('sprites/fi
          pygame.image.load('sprites/fire555.png'), pygame.image.load('sprites/fire555.png'), pygame.image.load('sprites/fire444.png'), pygame.image.load('sprites/fire333.png'),
          pygame.image.load('sprites/fire222.png'), pygame.image.load('sprites/fire111.png')]
 
+background = [pygame.image.load('sprites/background1.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background3.png'),
+              pygame.image.load('sprites/background4.png'), pygame.image.load('sprites/background5.png'), pygame.image.load('sprites/background6.png'),
+              pygame.image.load('sprites/background7.png'), pygame.image.load('sprites/background8.png'), pygame.image.load('sprites/background7.png'),
+              pygame.image.load('sprites/background6.png'), pygame.image.load('sprites/background5.png'), pygame.image.load('sprites/background4.png'),
+              pygame.image.load('sprites/background3.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background1.png')]
 
 class Object:
     def __init__(self, x, y, width, height):
@@ -88,14 +93,14 @@ def choice():
         return False
 
 
-def draw_window():
+def draw_window(lives):
     global anim_count
     win.fill((0, 0, 0))
 
-    # win.blit(background, (0, 0)) - for background
-
     if anim_count + 1 >= 60:
         anim_count = 0
+
+    win.blit(background[anim_count//4], (0, 0))
 
     if left:
         win.blit(walk_left[anim_count // 5], (player_x, player_y))
@@ -161,7 +166,7 @@ def pause():
     while paused:
         clock.tick(60)
 
-        print_text('PAUSED. Press ENTER to continue', 20, 200)
+        print_text('PAUSED. Press ENTER to continue',display_width // 4 + 20, 200)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -190,13 +195,13 @@ def game_over(points):
         clock.tick(60)
 
         if high_score(points):
-            print_text('NEW BEST SCORE!!!', 80, 200, font_size=40, font_color=(255, 255, 0))
+            print_text('NEW BEST SCORE!!!', display_width // 4 + 80, 200, font_size=40, font_color=(255, 255, 0))
 
-        print_text('GAME OVER', 110, 90, font_size=50)
-        print_text(('your score: ' + str(points)), 175, 150, font_size=20)
-        print_text(('Best score: ' + open('highscore.txt', 'r').read()), 174, 175, font_color=(255, 255, 0), font_size=20)
-        print_text('R - restart', 185, 250, font_size=25)
-        print_text('ESC - exit', 185, 275, font_size=25)
+        print_text('GAME OVER', display_width // 4 + 110, 90, font_size=50)
+        print_text(('your score: ' + str(points)), display_width // 4 + 175, 150, font_size=20)
+        print_text(('Best score: ' + open('highscore.txt', 'r').read()), display_width // 4 + 174, 175, font_color=(255, 255, 0), font_size=20)
+        print_text('R - restart', display_width // 4 + 185, 250, font_size=25)
+        print_text('ESC - exit', display_width // 4 + 185, 275, font_size=25)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -222,7 +227,7 @@ def move_left():
 
 def move_right():
     global left, right, last_move, player_x, player_width, player_speed
-    if player_x < (500 - player_width - 5):
+    if player_x < (display_width - player_width - 5):
         left = False
         right = True
         last_move = 'right'
@@ -236,7 +241,7 @@ def stand():
 
 
 def restart():
-    global player_y, player_x, spikes, bullets
+    global player_y, player_x, bullets
     player_x = 50
     player_y = display_height - 60
     run_game(points=0, spikes=[])
@@ -274,15 +279,22 @@ def run_game(points=0, lives=20, spikes=[], heart=Object(1500, 200, 30, 30)):
     obstacle_speed = 6
     run = True
     best = open('highscore.txt', 'r').read()
+    create_spikes(spikes)
+    heart_rate = 5000
     while run:
 
         clock.tick(60)
         points += 1
 
-        if points == 1:
-            create_spikes(spikes)
-        elif points % 1000 == 0:
+        if points % 1000 == 0:
+            heart_rate += 1000
             obstacle_speed += 1
+        elif points % 3001 == 0:
+            index = random.randint(0, 2)
+            width = [30, 40, 50]
+            height = [80, 50, 65]
+            spikes.append(Object(500 + random.choice([1100, 1300, 1550]),
+                                 display_height - height[index] - 10, width[index], height[index]))
 
         # bugfix
         if player_y > display_height - 60:
@@ -310,14 +322,14 @@ def run_game(points=0, lives=20, spikes=[], heart=Object(1500, 200, 30, 30)):
         else:
             jump()
 
-        draw_window()
+        draw_window(lives)
 
         draw_spikes(spikes, obstacle_speed)
         draw_hearts(heart, obstacle_speed)
 
         if check_collision([heart]) and is_jump:
             lives += 3
-            heart = Object(random.randrange(2000, 5000), 200, 30, 30)
+            heart = Object(random.randrange(heart_rate - 3000, heart_rate), 200, 30, 30)
 
         if check_collision(spikes):
             if lives <= 0:
@@ -338,5 +350,4 @@ if __name__ == '__main__':
 
 pygame.quit()
 
-# TODO add hearts as a healing
 # TODO add shooting
