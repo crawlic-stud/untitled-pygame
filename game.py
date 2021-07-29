@@ -7,7 +7,7 @@ display_height = 500
 win = pygame.display.set_mode((display_width, display_height))
 
 pygame.display.set_caption('POOPRUN')
-a
+
 clock = pygame.time.Clock()
 
 player_x = 50
