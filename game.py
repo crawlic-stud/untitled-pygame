@@ -9,6 +9,7 @@ win = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('POOPRUN')
 
 clock = pygame.time.Clock()
+FPS = 60
 
 player_x = 50
 player_y = display_height - 60
@@ -117,22 +118,21 @@ def choice():
 
 
 def draw_window(lives):
-    global anim_count
-    win.fill((0, 0, 0))
+    global anim_count, FPS
+    win.fill((30, 0, 0))
+    pygame.draw.rect(win, (50, 0, 0), (0, 480, 1000, 20))
 
     if anim_count + 1 >= 60:
         anim_count = 0
 
-    win.blit(background[anim_count//4], (0, 0))
-
     if left:
-        win.blit(walk_left[anim_count // 5], (player_x, player_y))
+        win.blit(walk_left[anim_count // (FPS//12)], (player_x, player_y))
         anim_count += 1
     elif right:
-        win.blit(walk_right[anim_count // 5], (player_x, player_y))
+        win.blit(walk_right[anim_count // (FPS//12)], (player_x, player_y))
         anim_count += 1
     else:
-        win.blit(player_stand[anim_count // 12], (player_x, player_y))
+        win.blit(player_stand[anim_count // (FPS//5)], (player_x, player_y))
         anim_count += 1
 
     for bullet in bullets:
@@ -162,14 +162,14 @@ def create_spikes(spikes, x=500):
 
 
 def draw_spikes(spikes, speed=6):
-    global anim_count
+    global anim_count, FPS
     for spike in spikes:
         if spike.width == 30:
-            win.blit(fire1[anim_count // 6], (spike.x, spike.y))
+            win.blit(fire1[anim_count // (FPS//10)], (spike.x, spike.y))
         elif spike.width == 40:
-            win.blit(fire2[anim_count // 6], (spike.x, spike.y))
+            win.blit(fire2[anim_count // (FPS//10)], (spike.x, spike.y))
         elif spike.width == 50:
-            win.blit(fire3[anim_count // 6], (spike.x, spike.y))
+            win.blit(fire3[anim_count // (FPS//10)], (spike.x, spike.y))
         spike.move(speed)
 
 
@@ -187,9 +187,9 @@ def print_text(message, x, y, font_color=(255, 255, 255), font='21002.ttf', font
 def pause():
     paused = True
     while paused:
-        clock.tick(60)
+        clock.tick(FPS)
 
-        print_text('PAUSED. Press ENTER to continue',display_width // 4 + 20, 200)
+        print_text('PAUSED. Press ENTER to continue', display_width // 4 + 20, 200)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -215,7 +215,7 @@ def check_collision(array):
 def game_over(points):
     win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
     while True:
-        clock.tick(60)
+        clock.tick(FPS)
 
         if high_score(points):
             print_text('NEW BEST SCORE!!!', display_width // 4 + 80, 200, font_size=40, font_color=(255, 255, 0))
@@ -307,7 +307,7 @@ def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300
     button = Button(100, 30)
     while run:
 
-        clock.tick(60)
+        clock.tick(FPS)
         points += 1
 
         if points % 1000 == 0:
@@ -317,7 +317,7 @@ def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300
             index = random.randint(0, 2)
             width = [30, 40, 50]
             height = [80, 50, 65]
-            spikes.append(Object(500 + random.choice([1100, 1300, 1550]),
+            spikes.append(Object(1000 + random.randint(100, 1000),
                                  display_height - height[index] - 10, width[index], height[index]))
 
         # bugfix
