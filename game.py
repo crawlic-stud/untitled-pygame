@@ -20,7 +20,7 @@ player_speed = 5
 bullets = []
 
 is_jump = False
-jump_count = 10
+jump_count = 15
 
 left = False
 right = False
@@ -142,15 +142,15 @@ def draw_window(lives):
 def jump():
     global player_y, jump_count, is_jump
 
-    if jump_count >= -10:
+    if jump_count >= -15:
         if jump_count < 0:
-            player_y += (jump_count ** 2) // 1.5
+            player_y += (jump_count ** 2) // 5
         else:
-            player_y -= (jump_count ** 2) // 1.5
+            player_y -= (jump_count ** 2) // 5
         jump_count -= 1
     else:
         is_jump = False
-        jump_count = 10
+        jump_count = 15
 
 # def shooting(bullets)
 
