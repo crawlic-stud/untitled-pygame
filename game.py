@@ -7,7 +7,7 @@ display_height = 500
 win = pygame.display.set_mode((display_width, display_height))
 
 pygame.display.set_caption('POOPRUN')
-
+a
 clock = pygame.time.Clock()
 
 player_x = 50
@@ -57,6 +57,7 @@ background = [pygame.image.load('sprites/background1.png'), pygame.image.load('s
               pygame.image.load('sprites/background6.png'), pygame.image.load('sprites/background5.png'), pygame.image.load('sprites/background4.png'),
               pygame.image.load('sprites/background3.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background1.png')]
 
+
 class Object:
     def __init__(self, x, y, width, height):
         self.x = x
@@ -83,6 +84,28 @@ class Shoot:
 
     def draw(self, win):
         win.blit(pygame.image.load('sprites/poop.png'), (self.x, self.y))
+
+
+class Button:
+    def __init__(self, width, height, inactive_color=(13, 162, 58), active_color=(23, 204, 58)):
+        self.width = width
+        self.height = height
+        self.inactive_color = inactive_color
+        self.active_color = active_color
+
+    def draw(self, x, y, message, action=None):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed(num_buttons=3)
+
+        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
+            pygame.draw.rect(win, self.active_color, (x, y, self.width, self.height))
+
+            if click[0] == 1 and action is not None:
+                action()
+        else:
+            pygame.draw.rect(win, self.inactive_color, (x, y, self.width, self.height))
+
+        print_text(message, x + 5, y + 5, font_size=10)
 
 
 def choice():
@@ -274,13 +297,14 @@ def high_score(points):
 """
 
 
-def run_game(points=0, lives=20, spikes=[], heart=Object(1500, 200, 30, 30)):
+def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300, 30, 30), max_hp=40):
     global is_jump
     obstacle_speed = 6
     run = True
     best = open('highscore.txt', 'r').read()
     create_spikes(spikes)
     heart_rate = 5000
+    button = Button(100, 30)
     while run:
 
         clock.tick(60)
@@ -322,23 +346,31 @@ def run_game(points=0, lives=20, spikes=[], heart=Object(1500, 200, 30, 30)):
         else:
             jump()
 
-        draw_window(lives)
+        draw_window(hp)
+        # button.draw(100, 100, 'Pause')
 
         draw_spikes(spikes, obstacle_speed)
         draw_hearts(heart, obstacle_speed)
 
         if check_collision([heart]) and is_jump:
-            lives += 3
-            heart = Object(random.randrange(heart_rate - 3000, heart_rate), 200, 30, 30)
+            if hp <= max_hp - 3:
+                hp += 3
+            else:
+                hp = 40
+
+            # spawning heart again after eating
+            heart = Object(random.randrange(heart_rate - 3000, heart_rate), display_height - 300, 30, 30)
 
         if check_collision(spikes):
-            if lives <= 0:
+            if hp <= 0:
                 game_over(points)
             else:
                 win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
-                lives -= 1
+                hp -= 1
 
-        print_text(('HP: ' + str(lives)), 0, 30, font_size=20)
+        pygame.draw.rect(win, (0, 0, 0), (35, 30, 160, 25))
+        pygame.draw.rect(win, (255, 255, 255), (35, 30, hp * 4, 25))
+        print_text('HP', 0, 30, font_size=20)
         print_text(('your score: ' + str(points)), 0, 0, font_size=20)
         print_text(('best score: ' + best), display_width - 170, 0, font_size=20)
 
@@ -351,3 +383,6 @@ if __name__ == '__main__':
 pygame.quit()
 
 # TODO add shooting
+# TODO добавить лужи которые замедляют
+# TODO добавить что-то на потолке, что дамажит
+# TODO добавить врагов
