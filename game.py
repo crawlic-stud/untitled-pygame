@@ -20,7 +20,7 @@ player_speed = 5
 bullets = []
 
 is_jump = False
-jump_count = 15
+jump_count = 10
 
 left = False
 right = False
@@ -31,32 +31,39 @@ walk_right = [pygame.image.load('sprites/right (4).png'),
               pygame.image.load('sprites/right (5).png'), pygame.image.load('sprites/right (6).png'), pygame.image.load('sprites/right (7).png'), pygame.image.load('sprites/right (8).png'),
               pygame.image.load('sprites/right (9).png'), pygame.image.load('sprites/right (10).png'), pygame.image.load('sprites/right (11).png'), pygame.image.load('sprites/right (12).png'),
               pygame.image.load('sprites/right (13).png'), pygame.image.load('sprites/right (14).png'), pygame.image.load('sprites/right (15).png')]
+walk_right = [_.convert() for _ in walk_right]
 
 walk_left = [pygame.image.load('sprites/left (4).png'),
              pygame.image.load('sprites/left (5).png'), pygame.image.load('sprites/left (6).png'), pygame.image.load('sprites/left (7).png'), pygame.image.load('sprites/left (8).png'),
              pygame.image.load('sprites/left (9).png'), pygame.image.load('sprites/left (10).png'), pygame.image.load('sprites/left (11).png'), pygame.image.load('sprites/left (12).png'),
              pygame.image.load('sprites/left (13).png'), pygame.image.load('sprites/left (14).png'), pygame.image.load('sprites/left (15).png')]
+walk_left = [_.convert() for _ in walk_left]
 
 player_stand = [pygame.image.load('sprites/front (1).png'), pygame.image.load('sprites/front (2).png'), pygame.image.load('sprites/front (3).png'),
                 pygame.image.load('sprites/front (4).png'), pygame.image.load('sprites/front (5).png')]
+player_stand = [_.convert() for _ in player_stand]
 
 fire1 = [pygame.image.load('sprites/fire1.png'), pygame.image.load('sprites/fire2.png'), pygame.image.load('sprites/fire3.png'), pygame.image.load('sprites/fire4.png'),
          pygame.image.load('sprites/fire5.png'), pygame.image.load('sprites/fire5.png'), pygame.image.load('sprites/fire4.png'), pygame.image.load('sprites/fire3.png'),
          pygame.image.load('sprites/fire2.png'), pygame.image.load('sprites/fire1.png')]
+#fire1 = [_.convert() for _ in fire1]
 
 fire2 = [pygame.image.load('sprites/fire11.png'), pygame.image.load('sprites/fire22.png'), pygame.image.load('sprites/fire33.png'), pygame.image.load('sprites/fire44.png'),
          pygame.image.load('sprites/fire55.png'), pygame.image.load('sprites/fire55.png'), pygame.image.load('sprites/fire44.png'), pygame.image.load('sprites/fire33.png'),
          pygame.image.load('sprites/fire22.png'), pygame.image.load('sprites/fire11.png')]
+#fire2 = [_.convert() for _ in fire2]
 
 fire3 = [pygame.image.load('sprites/fire111.png'), pygame.image.load('sprites/fire222.png'), pygame.image.load('sprites/fire333.png'), pygame.image.load('sprites/fire444.png'),
          pygame.image.load('sprites/fire555.png'), pygame.image.load('sprites/fire555.png'), pygame.image.load('sprites/fire444.png'), pygame.image.load('sprites/fire333.png'),
          pygame.image.load('sprites/fire222.png'), pygame.image.load('sprites/fire111.png')]
+#fire3 = [_.convert() for _ in fire3]
 
-background = [pygame.image.load('sprites/background1.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background3.png'),
+"""background = [pygame.image.load('sprites/background1.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background3.png'),
               pygame.image.load('sprites/background4.png'), pygame.image.load('sprites/background5.png'), pygame.image.load('sprites/background6.png'),
               pygame.image.load('sprites/background7.png'), pygame.image.load('sprites/background8.png'), pygame.image.load('sprites/background7.png'),
               pygame.image.load('sprites/background6.png'), pygame.image.load('sprites/background5.png'), pygame.image.load('sprites/background4.png'),
               pygame.image.load('sprites/background3.png'), pygame.image.load('sprites/background2.png'), pygame.image.load('sprites/background1.png')]
+background = [_.convert() for _ in background]"""
 
 
 class Object:
@@ -88,26 +95,31 @@ class Shoot:
 
 
 class Button:
-    def __init__(self, width, height, inactive_color=(13, 162, 58), active_color=(23, 204, 58)):
+    def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.inactive_color = inactive_color
-        self.active_color = active_color
+        self.inactive_color = (120, 25, 25)
+        self.active_color = (160, 25, 25)
+        self.outline_color = (200, 25, 25)
 
     def draw(self, x, y, message, action=None):
-        mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed(num_buttons=3)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
 
-        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
+        if x < mouse_x < x + self.width and y < mouse_y < y + self.height:
             pygame.draw.rect(win, self.active_color, (x, y, self.width, self.height))
+            pygame.draw.rect(win, self.outline_color, (x, y, self.width, self.height), 2)
 
-            if click[0] == 1 and action is not None:
-                action()
+            if click[0] == 1:
+                if action == 'continue':
+                    return False
+                elif action is not None:
+                    action()
         else:
             pygame.draw.rect(win, self.inactive_color, (x, y, self.width, self.height))
+            pygame.draw.rect(win, self.outline_color, (x, y, self.width, self.height), 2)
 
-        print_text(message, x + 5, y + 5, font_size=10)
-
+        print_text(message, x + (self.width - (len(message)/2 * (self.height - 10)) - 10)//2, y + 5, font_size=self.height - 10)
 
 def choice():
     check = random.randint(0, 5)
@@ -117,7 +129,24 @@ def choice():
         return False
 
 
-def draw_window(lives):
+def start_menu():
+    menu = True
+    while menu:
+        clock.tick(FPS)
+        win.fill((0, 0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        button = Button(300, 60)
+        button.draw((display_width - button.width)//2, 150, 'PLAY', restart)
+        button.draw((display_width - button.width)//2, 300, 'EXIT', pygame.quit)
+
+        pygame.display.update()
+
+
+def draw_window(spikes, heart, obstacle_speed):
     global anim_count, FPS
     win.fill((30, 0, 0))
     pygame.draw.rect(win, (50, 0, 0), (0, 480, 1000, 20))
@@ -135,27 +164,27 @@ def draw_window(lives):
         win.blit(player_stand[anim_count // (FPS//5)], (player_x, player_y))
         anim_count += 1
 
-    for bullet in bullets:
-        bullet.draw(win)
+    draw_spikes(spikes, obstacle_speed)
+    draw_hearts(heart, obstacle_speed)
 
 
 def jump():
     global player_y, jump_count, is_jump
 
-    if jump_count >= -15:
+    if jump_count >= -10:
         if jump_count < 0:
-            player_y += (jump_count ** 2) // 5
+            player_y += (jump_count ** 2) // 1.5
         else:
-            player_y -= (jump_count ** 2) // 5
+            player_y -= (jump_count ** 2) // 1.5
         jump_count -= 1
     else:
         is_jump = False
-        jump_count = 15
+        jump_count = 10
 
 # def shooting(bullets)
 
 
-def create_spikes(spikes, x=500):
+def create_spikes(spikes, x=1000):
     spikes.append(Object(x + 100, display_height - 90, 30, 80))
     spikes.append(Object(x + 300, display_height - 60, 40, 50))
     spikes.append(Object(x + 550, display_height - 75, 50, 65))
@@ -181,6 +210,7 @@ def draw_hearts(heart, speed=5):
 def print_text(message, x, y, font_color=(255, 255, 255), font='21002.ttf', font_size=30):
     font = pygame.font.Font(font, font_size)
     text = font.render(message, True, font_color)
+    win.blit(font.render(message, True, (0, 0, 0)), (x + 2, y + 2))
     win.blit(text, (x, y))
 
 
@@ -189,11 +219,15 @@ def pause():
     while paused:
         clock.tick(FPS)
 
-        print_text('PAUSED. Press ENTER to continue', display_width // 4 + 20, 200)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+
+        button = Button(400, 40)
+        button.draw((display_width - button.width)//2, 150, 'CONTINUE')
+        button.draw((display_width - button.width)//2, 200, 'RESTART', restart)
+        button.draw((display_width - button.width)//2, 250, 'MAIN MENU', start_menu)
+        button.draw((display_width - button.width)//2, 300, 'EXIT', pygame.quit)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RETURN]:
@@ -202,14 +236,10 @@ def pause():
         pygame.display.update()
 
 
-def check_collision(array):
-    for i in array:
-        if player_y + player_height >= i.y:
-            if i.x <= player_x < i.x + i.width:
-                return True
-            elif i.x <= player_x + player_width < i.x + i.width:
-                return True
-    return False
+def check_collision(object, x, y, width, height):
+    player = pygame.Rect(x, y, width, height)
+    obstacle = pygame.Rect(object.x, object.y, object.width, object.height)
+    return player.colliderect(obstacle)
 
 
 def game_over(points):
@@ -223,8 +253,11 @@ def game_over(points):
         print_text('GAME OVER', display_width // 4 + 110, 90, font_size=50)
         print_text(('your score: ' + str(points)), display_width // 4 + 175, 150, font_size=20)
         print_text(('Best score: ' + open('highscore.txt', 'r').read()), display_width // 4 + 174, 175, font_color=(255, 255, 0), font_size=20)
-        print_text('R - restart', display_width // 4 + 185, 250, font_size=25)
-        print_text('ESC - exit', display_width // 4 + 185, 275, font_size=25)
+
+        button = Button(400, 40)
+        button.draw((display_width - button.width)//2, 250, 'RESTART', restart)
+        button.draw((display_width - button.width)//2, 300, 'MAIN MENU', start_menu)
+        button.draw((display_width - button.width)//2, 350, 'EXIT', pygame.quit)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -264,7 +297,7 @@ def stand():
 
 
 def restart():
-    global player_y, player_x, bullets
+    global player_y, player_x
     player_x = 50
     player_y = display_height - 60
     run_game(points=0, spikes=[])
@@ -297,16 +330,16 @@ def high_score(points):
 """
 
 
-def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300, 30, 30), max_hp=40):
+def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 250, 30, 30), max_hp=40):
     global is_jump
     obstacle_speed = 6
     run = True
     best = open('highscore.txt', 'r').read()
     create_spikes(spikes)
     heart_rate = 5000
-    button = Button(100, 30)
     while run:
 
+        player = (player_x, player_y, player_width, player_height)
         clock.tick(FPS)
         points += 1
 
@@ -346,27 +379,23 @@ def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300
         else:
             jump()
 
-        draw_window(hp)
-        # button.draw(100, 100, 'Pause')
-
-        draw_spikes(spikes, obstacle_speed)
-        draw_hearts(heart, obstacle_speed)
-
-        if check_collision([heart]) and is_jump:
+        if check_collision(heart, *player):
             if hp <= max_hp - 3:
                 hp += 3
             else:
                 hp = 40
-
             # spawning heart again after eating
-            heart = Object(random.randrange(heart_rate - 3000, heart_rate), display_height - 300, 30, 30)
+            heart = Object(random.randrange(heart_rate - 3000, heart_rate), display_height - 250, 30, 30)
 
-        if check_collision(spikes):
-            if hp <= 0:
-                game_over(points)
-            else:
-                win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
-                hp -= 1
+        draw_window(spikes, heart, obstacle_speed)
+
+        for spike in spikes:
+            if check_collision(spike, *player):
+                if hp <= 0:
+                    game_over(points)
+                else:
+                    win.blit(pygame.image.load('sprites/oof.png'), (0, 0))
+                    hp -= 1
 
         pygame.draw.rect(win, (0, 0, 0), (35, 30, 160, 25))
         pygame.draw.rect(win, (255, 255, 255), (35, 30, hp * 4, 25))
@@ -378,7 +407,7 @@ def run_game(points=0, hp=20, spikes=[], heart=Object(1500, display_height - 300
 
 
 if __name__ == '__main__':
-    run_game()
+    start_menu()
 
 pygame.quit()
 
